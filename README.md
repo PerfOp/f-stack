@@ -72,13 +72,18 @@ Currently, besides authorized DNS server of DNSPod, there are various products i
     echo 0 > /proc/sys/kernel/randomize_va_space
 
     # Offload NIC
-    # For Linux:
+    # Option 1: For Linux (NOT with real mellanox NIC, epsecially on Azure linux VM).
     modprobe uio
     insmod /data/f-stack/dpdk/build/kernel/linux/igb_uio/igb_uio.ko
     insmod /data/f-stack/dpdk/build/kernel/linux/kni/rte_kni.ko carrier=on # carrier=on is necessary, otherwise need to be up `veth0` via `echo 1 > /sys/class/net/veth0/carrier`
     python dpdk-devbind.py --status
     ifconfig eth0 down
     python dpdk-devbind.py --bind=igb_uio eth0 # assuming that use 10GE NIC and eth0
+    # Option 2: For Linux with real mellanox NIC (Epsecially on Azure linux VM).
+    modprobe ib_uverbs
+    modprobe mlx5_ib
+    modprobe mlx5_core
+    insmod /data/f-stack/dpdk/build/kernel/linux/kni/rte_kni.ko carrier=on # carrier=on is necessary, otherwise need to be up `veth0` via `echo 1 > /sys/class/net/veth0/carrier`
 
     # For FreeBSD:
     # Refer DPDK FreeBSD guide to set tunables in /boot/loader.conf
@@ -106,7 +111,7 @@ Currently, besides authorized DNS server of DNSPod, there are various products i
     #make install
     #mv /usr/bin/pkg-config /usr/bin/pkg-config.bak
     #ln -s /usr/local/bin/pkg-config /usr/bin/pkg-config
- 
+
     # Compile F-Stack
     export FF_PATH=/data/f-stack
     export PKG_CONFIG_PATH=/usr/lib64/pkgconfig:/usr/local/lib64/pkgconfig:/usr/lib/pkgconfig
@@ -136,7 +141,7 @@ for more details, see [nginx guide](https://github.com/F-Stack/f-stack/blob/mast
 #### Redis
 
     cd app/redis-6.2.6/deps/jemalloc
-    ./autogen.sh 
+    ./autogen.sh
     cd ../..
     make
     make install
@@ -149,7 +154,7 @@ for more details, see [nginx guide](https://github.com/F-Stack/f-stack/blob/mast
     sleep 10
     ifconfig veth0 <ipaddr>  netmask <netmask>  broadcast <broadcast> hw ether <mac addr>
     route add -net 0.0.0.0 gw <gateway> dev veth0
-    echo 1 > /sys/class/net/veth0/carrier # if `carrier=on` not set while `insmod rte_kni.ko` 
+    echo 1 > /sys/class/net/veth0/carrier # if `carrier=on` not set while `insmod rte_kni.ko`
     # route add -net ...  # other route rules
 
 ## Nginx Testing Result
