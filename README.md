@@ -53,6 +53,10 @@ Currently, besides authorized DNS server of DNSPod, there are various products i
     # re-enable kni now, to remove kni later
     # disable crypto/openssl for Redhat/Centos 7.x.
     meson -Denable_kmods=true -Ddisable_libs=flow_classify -Ddisable_drivers=crypto/openssl build
+    # enable building the examples
+    ## meson -Denable_kmods=true -Ddisable_libs=flow_classify -Ddisable_drivers=crypto/openssl -Dexamples=all build
+    # for ubtuntu 24.04, Please disable the "enable_kmods"
+    ## meson -Denable_kmods=false -Ddisable_libs=flow_classify -Ddisable_drivers=crypto/openssl -Dexamples=all build
     ninja -C build
     ninja -C build install
 
@@ -83,7 +87,8 @@ Currently, besides authorized DNS server of DNSPod, there are various products i
     modprobe ib_uverbs
     modprobe mlx5_ib
     modprobe mlx5_core
-    insmod /data/f-stack/dpdk/build/kernel/linux/kni/rte_kni.ko carrier=on # carrier=on is necessary, otherwise need to be up `veth0` via `echo 1 > /sys/class/net/veth0/carrier`
+    # only valid for ubuntu 22.04 @ azure
+    # insmod /data/f-stack/dpdk/build/kernel/linux/kni/rte_kni.ko carrier=on # carrier=on is necessary, otherwise need to be up `veth0` via `echo 1 > /sys/class/net/veth0/carrier`
 
     # For FreeBSD:
     # Refer DPDK FreeBSD guide to set tunables in /boot/loader.conf
